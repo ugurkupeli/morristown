@@ -1,8 +1,13 @@
 [package]
 name = "morristown"
+authors = ["Uğur Küpeli"]
 version = "0.1.0"
 edition = "2021"
-description = "Utility library for working on code-horrors/"
+description = "Utility library for working with https://github.com/coding-horror/basic-computer-games"
+license = "MIT"
+repository = "https://github.com/ugurkupeli/morristown"
+keywords = ["basic", "game", "utility", "prompt"]
+categories = ["utility", "command-line"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

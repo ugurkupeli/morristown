@@ -116,7 +116,7 @@ pub fn prompt_number<T: FromStr<Err = ParseIntError>>(msg: &str) -> T {
         println!("{}", msg);
         match read_number::<T>() {
             Ok(n) => return n,
-            Err(_) => println!("ENTER A NUMBER"),
+            Err(_) => println!("ENTER A VALID NUMBER"),
         }
     }
 }
@@ -130,12 +130,12 @@ where
         println!("{}", msg);
         match read_number::<T>() {
             Ok(n) => {
-                if n >= min || n <= max {
+                if n >= min && n <= max {
                     return n;
                 }
                 println!("ENTER A NUMBER BETWEEN (INCLUDING) {} AND {}", min, max);
             }
-            Err(_) => println!("ENTER A NUMBER"),
+            Err(_) => println!("ENTER A VALID NUMBER"),
         }
     }
 }
