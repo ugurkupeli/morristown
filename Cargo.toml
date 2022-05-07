@@ -7,7 +7,7 @@ description = "Utility library for working with https://github.com/coding-horror
 license = "MIT"
 repository = "https://github.com/ugurkupeli/morristown"
 keywords = ["basic", "game", "utility", "prompt"]
-categories = ["utility", "command-line"]
+categories = ["game-development", "command-line-interface"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
