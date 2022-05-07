@@ -1,7 +1,7 @@
 [package]
 name = "morristown"
 authors = ["Uğur Küpeli"]
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Utility library for working with https://github.com/coding-horror/basic-computer-games"
 license = "MIT"
