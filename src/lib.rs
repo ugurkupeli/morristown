@@ -56,14 +56,8 @@ impl<'a> Instructions<'a> {
 }
 
 /// Prints the game intro template.
-///
-/// Can include an Instructions struct to specify print behavior for game instructions.
-pub fn print_intro(name: &str, instructions: Option<Instructions>) {
+pub fn print_intro(name: &str) {
     println!("\n\n\t\t{name}\nCREATIVE COMPUTING MORRISTOWN, NEW JERSEY\n");
-
-    if let Some(i) = instructions {
-        i.print();
-    }
 }
 
 fn read_line() -> String {
