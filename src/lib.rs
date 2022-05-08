@@ -36,7 +36,7 @@ impl<'a> Instructions<'a> {
             msg,
             instructions: "",
             instructions_multiline: instructions,
-            multiline: false,
+            multiline: true,
         }
     }
 
