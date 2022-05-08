@@ -133,13 +133,20 @@ where
                 if range.contains(&n) {
                     return n;
                 }
-                println!("ENTER A NUMBER IN RANGE {:?}", range);
+                println!(
+                    "ENTER A NUMBER WITHIN {:?}, AND {:?}",
+                    range.start(),
+                    range.end()
+                );
             }
             Err(_) => println!("ENTER A VALID NUMBER"),
         }
     }
 }
 
+/// Options for multiple element prompts:
+///
+/// Choose between a specific unit amount allowed or an amount within a range
 pub enum PromptMultiOption {
     UnitAmount(usize),
     UnitAmountRange(RangeInclusive<usize>),
@@ -160,7 +167,11 @@ fn check_multi_option(o: &PromptMultiOption, l: usize) -> bool {
             if r.contains(&l) {
                 return true;
             } else {
-                println!("AMOUNT OF UNITS ENTERED MUST BE IN RANGE {:?}", r);
+                println!(
+                    "AMOUNT OF UNITS MUST BE WITHIN {:?} AND {:?}",
+                    r.start(),
+                    r.end()
+                );
             }
         }
     }
@@ -196,7 +207,7 @@ pub fn prompt_multi_string(
 ///
 /// You can also optionally set a range for the amount of units expected,
 ///
-/// and a range in which the numbers should be.
+/// and a range in which the individual numbers should be.
 pub fn prompt_multi_number<T>(
     msg: &str,
     separator: &str,
@@ -204,8 +215,7 @@ pub fn prompt_multi_number<T>(
     range: Option<RangeInclusive<T>>,
 ) -> Vec<T>
 where
-    T: FromStr,
-    T: PartialOrd,
+    T: FromStr + PartialOrd + Debug,
 {
     loop {
         println!("{}", msg);
@@ -228,6 +238,10 @@ where
                         if let Some(r) = &range {
                             if r.contains(&n) {
                                 nums.push(n);
+                            } else {
+                                println!("NUMBER MUST BE WITHIN {:?} AND {:?}", r.start(), r.end());
+                                ok = false;
+                                break;
                             }
                         } else {
                             nums.push(n);
