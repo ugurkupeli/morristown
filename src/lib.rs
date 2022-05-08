@@ -1,4 +1,10 @@
-use std::{fmt::Display, io, num::ParseIntError, str::FromStr};
+use std::{
+    fmt::{Debug, Display},
+    io,
+    num::ParseIntError,
+    ops::RangeInclusive,
+    str::FromStr,
+};
 
 /// Options for displaying game instructions in the intro.
 ///
@@ -115,40 +121,71 @@ pub fn prompt_number<T: FromStr<Err = ParseIntError>>(msg: &str) -> T {
     }
 }
 
-/// Ask user for a number (of type T) between (and including) min and max.
-pub fn prompt_number_range<T>(msg: &str, min: T, max: T) -> T
+/// Asks user for a number <T> in specified range.
+pub fn prompt_number_range<T>(msg: &str, range: RangeInclusive<T>) -> T
 where
-    T: FromStr<Err = ParseIntError> + PartialOrd + Display,
+    T: FromStr<Err = ParseIntError> + PartialOrd + Display + Debug,
 {
     loop {
         println!("{}", msg);
         match read_number::<T>() {
             Ok(n) => {
-                if n >= min && n <= max {
+                if range.contains(&n) {
                     return n;
                 }
-                println!("ENTER A NUMBER BETWEEN (INCLUDING) {} AND {}", min, max);
+                println!("ENTER A NUMBER IN RANGE {:?}", range);
             }
             Err(_) => println!("ENTER A VALID NUMBER"),
         }
     }
 }
 
+pub enum PromptMultiOption {
+    UnitAmount(usize),
+    UnitAmountRange(RangeInclusive<usize>),
+}
+
+fn check_multi_option(o: &PromptMultiOption, l: usize) -> bool {
+    use PromptMultiOption::*;
+
+    match o {
+        UnitAmount(a) => {
+            if l == *a {
+                return true;
+            } else {
+                println!("THERE MUST BE {a} UNITS")
+            }
+        }
+        UnitAmountRange(r) => {
+            if r.contains(&l) {
+                return true;
+            } else {
+                println!("AMOUNT OF UNITS ENTERED MUST BE IN RANGE {:?}", r);
+            }
+        }
+    }
+
+    false
+}
+
 /// Asks users for a multiple string answer, units seperated by the "separator".
 ///
-/// You can also optionally set a min and max amount of units expected.
-pub fn prompt_multi(msg: &str, separator: &str, min_max: Option<(usize, usize)>) -> Vec<String> {
+/// You can also optionally set a range for the amount of units expected.
+pub fn prompt_multi_string(
+    msg: &str,
+    separator: &str,
+    option: Option<PromptMultiOption>,
+) -> Vec<String> {
     loop {
         println!("{}", msg);
+
         let input = read_line();
         let input: Vec<String> = input.split(separator).map(str::to_string).collect();
-        if let Some(mm) = min_max {
-            let (min, max) = mm;
-            let l = input.len();
-            if l <= max && l >= min {
+
+        if let Some(o) = &option {
+            if check_multi_option(&o, input.len()) {
                 return input;
             }
-            println!("ENTER MIN: {} AND MAX: {} UNITS", min, max);
         } else {
             return input;
         }
@@ -157,10 +194,18 @@ pub fn prompt_multi(msg: &str, separator: &str, min_max: Option<(usize, usize)>)
 
 /// Asks user for a multiple number(T) answer, units spearated by the "separator".
 ///
-/// You can also optionally set a min and max amount of units expected.
-pub fn prompt_multi_number<T>(msg: &str, separator: &str, min_max: Option<(usize, usize)>) -> Vec<T>
+/// You can also optionally set a range for the amount of units expected,
+///
+/// and a range in which the numbers should be.
+pub fn prompt_multi_number<T>(
+    msg: &str,
+    separator: &str,
+    option: Option<PromptMultiOption>,
+    range: Option<RangeInclusive<T>>,
+) -> Vec<T>
 where
     T: FromStr,
+    T: PartialOrd,
 {
     loop {
         println!("{}", msg);
@@ -168,27 +213,26 @@ where
         let input = read_line();
         let input: Vec<&str> = input.split(separator).collect();
 
-        let mut ok = false;
-
-        if let Some(mm) = min_max {
-            let (min, max) = mm;
-            let l = input.len();
-
-            if l <= max && l >= min {
-                ok = true;
-            } else {
-                println!("ENTER MIN: {} AND MAX: {} UNITS", min, max);
-            }
+        let mut ok = if let Some(o) = &option {
+            check_multi_option(&o, input.len())
         } else {
-            ok = true;
-        }
+            true
+        };
 
         let mut nums = Vec::new();
 
         if ok {
             for i in &input {
                 match i.parse::<T>() {
-                    Ok(n) => nums.push(n),
+                    Ok(n) => {
+                        if let Some(r) = &range {
+                            if r.contains(&n) {
+                                nums.push(n);
+                            }
+                        } else {
+                            nums.push(n);
+                        }
+                    }
                     Err(_) => {
                         println!("ENTER ONLY NUMBERS");
                         ok = false;
